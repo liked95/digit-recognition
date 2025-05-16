@@ -19,14 +19,17 @@ def predict():
         image_file = request.files['image']
         image = Image.open(io.BytesIO(image_file.read()))
         processed_image = preprocess_image(image)
+        flattened_input = processed_image.flatten().reshape(1, 784)
         
         # Make prediction
-        prediction = model.predict(np.expand_dims(processed_image, axis=0))
-        predicted_digit = np.argmax(prediction[0])
+        prediction = model.predict(flattened_input)
+        prob = float(prediction[0][0])
+        predicted_digit = int(prob > 0.5)
+        confidence = prob if predicted_digit == 1 else 1 - prob
         
         return jsonify({
-            'prediction': int(predicted_digit),
-            'confidence': float(prediction[0][predicted_digit])
+            'prediction': predicted_digit,
+            'confidence': confidence
         })
     
     except Exception as e:
