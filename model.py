@@ -14,6 +14,8 @@ def load_data(cache_path='train_data_cache.npz'):
     print("Processing images and caching data...")
     X = []
     y = []
+    max_per_digit = 1000
+    count = 0
     for digit in [0, 1]:
         folder_path = os.path.join('train-data', str(digit))
         for filename in os.listdir(folder_path):
@@ -23,6 +25,9 @@ def load_data(cache_path='train_data_cache.npz'):
                 processed_image = preprocess_image(image)  # shape (28, 28)
                 X.append(processed_image.flatten())        # flatten to (784,)
                 y.append(digit)
+                count += 1
+                if count >= max_per_digit:
+                    break
     X = np.array(X)
     y = np.array(y).reshape(-1, 1)
     np.savez_compressed(cache_path, X=X, y=y)
