@@ -3,34 +3,11 @@ from flask_cors import CORS
 import numpy as np
 from PIL import Image
 import io
-import tensorflow as tf
+from utils import preprocess_image
+from model import model
 
 app = Flask(__name__)
 CORS(app)
-
-# Load the pre-trained model
-model = tf.keras.models.Sequential([
-    tf.keras.layers.Flatten(input_shape=(28, 28)),
-    tf.keras.layers.Dense(128, activation='relu'),
-    tf.keras.layers.Dense(2, activation='softmax')
-])
-
-# Compile the model
-model.compile(optimizer='adam',
-              loss='sparse_categorical_crossentropy',
-              metrics=['accuracy'])
-
-def preprocess_image(image):
-    # Convert to grayscale
-    image = image.convert('L')
-    # Resize to 28x28
-    image = image.resize((28, 28))
-    # Convert to numpy array and normalize
-    image = np.array(image)
-    image = image.astype('float32') / 255.0
-    # Invert colors (MNIST format)
-    image = 1 - image
-    return image
 
 @app.route('/predict', methods=['POST'])
 def predict():
